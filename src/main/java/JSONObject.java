@@ -36,6 +36,58 @@ public class JSONObject {
         children.put(key, child);
     }
 
+    public JSONObject getObject(String key) {
+        if (children == null) {
+            throw new IllegalStateException("This node has no children");
+        }
+        JSONObject child = children.get(key);
+        if (child == null) {
+            throw new IllegalArgumentException("Key '" + key + "' does not exist");
+        }
+        return child;
+    }
+
+    public String getString(String key){
+        if (children == null) {
+            throw new IllegalStateException("This node has no children");
+        }
+        JSONObject child = this.children.get(key);
+        if (child == null) {
+            throw new IllegalArgumentException("Key '" + key + "' does not exist");
+        }
+        return child.value;
+    }
+
+    public JSONObject[] getArray(String key){
+        if (children == null) {
+            throw new IllegalStateException("This node has no children");
+        }
+        JSONObject child = this.children.get(key);
+        if (child == null) {
+            throw new IllegalArgumentException("Key '" + key + "' does not exist");
+        }
+        Map<String,JSONObject> elements = child.getChildren();
+        if(elements==null){
+            return null;
+        }
+        JSONObject[] returnArray = new JSONObject[elements.size()];
+        for(int i =0;i<elements.size();i++){
+            returnArray[i]=elements.get(i+"");
+        }
+        return returnArray;
+    }
+    public int getInt(String key){
+        if (children == null) {
+            throw new IllegalStateException("This node has no children");
+        }
+        JSONObject child = this.children.get(key);
+        if (child == null) {
+            throw new IllegalArgumentException("Key '" + key + "' does not exist");
+        }
+        return Integer.parseInt(child.value);
+    }
+
+
     public static JSONObject parseJSON(List<Token> tokens){
         IntRef currentToken = new IntRef();
         currentToken.value = 0;
@@ -43,7 +95,6 @@ public class JSONObject {
     }
 
     public static JSONObject parseToken(List<Token> tokens, IntRef currentToken){
-        System.out.println(currentToken.value);
         JSONObject returnObject;
         switch (tokens.get(currentToken.value).getType()) {
             case TokenConstants.STRING:

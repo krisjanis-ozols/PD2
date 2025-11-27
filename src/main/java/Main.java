@@ -31,8 +31,14 @@ public class Main {
 //        root.addChild("bingus",test2);
 
         //printTokens(tokens);
-        printObject(root, 0);
+
+//        printObject(root, 0);
+        JSONObject[] test = root.getObject("Spele").getArray("Komanda");
+        JSONObject[] test2=test[0].getObject("Speletaji").getArray("Speletajs");
+        int test3 = test2[0].getInt("Nr");
+        System.out.println(test3);
         }
+
 
     private static void printObject(JSONObject obj, int indent) {
         String pad = "  ".repeat(indent);
