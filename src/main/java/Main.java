@@ -12,29 +12,6 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) {
 
-        //Map<String, JSONObject> testMap= new HashMap<>();
-
-//        JSONObject test2 = new JSONObject("test2","test2");
-//        JSONObject root = new JSONObject("test1","test1");
-//        root.addChild("dingus",test2);
-//        root.addChild("bingus",test2);
-
-        //printTokens(tokens);
-
-//        printObject(root, 0);
-//        JSONObject[] test = root.getObject("Spele").getArray("Komanda");
-//        JSONObject[] test2=test[0].getObject("Speletaji").getArray("Speletajs");
-//        int test3 = test2[0].getInt("Nr");
-//        System.out.println(test3);
-//        DB SQLite = new DB();
-//        try {
-//            int id = SQLite.playerId(SQLite.teamId("test"),1,"Te","St","U");
-//            System.out.println(id);
-//        }
-//        catch(SQLException e){
-//            e.printStackTrace();
-//        }
-
         JSONImporter.importJSON("JSONTEMP");
     }
 

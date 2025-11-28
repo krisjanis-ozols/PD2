@@ -9,8 +9,6 @@ import java.util.stream.Stream;
 public class JSONImporter {
     public static void importJSON(String directory) {
         Path dir = Paths.get(directory);
-        System.out.println("Working dir = " + System.getProperty("user.dir"));
-        System.out.println("Import dir  = " + dir.toAbsolutePath());
 
         DB db = new DB();
         JSONToDB importer = new JSONToDB(db);
