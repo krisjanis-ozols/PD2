@@ -66,15 +66,29 @@ public class JSONObject {
         if (child == null) {
             throw new IllegalArgumentException("Key '" + key + "' does not exist");
         }
+        if (!Objects.equals(child.type, "Array")) {
+            throw new ClassCastException("Node '" + key + "' is not an array");
+        }
         Map<String,JSONObject> elements = child.getChildren();
         if(elements==null){
             return null;
         }
         JSONObject[] returnArray = new JSONObject[elements.size()];
+
         for(int i =0;i<elements.size();i++){
             returnArray[i]=elements.get(i+"");
         }
         return returnArray;
+    }
+    public JSONObject[] getArrayOrObject(String key){
+        JSONObject[] array;
+        try {
+           array = getArray(key);
+        }catch(ClassCastException e){
+            array = new JSONObject[1];
+            array[0]=getObject(key);
+        }
+        return array;
     }
     public int getInt(String key){
         if (children == null) {

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,29 @@ public class Main {
         //printTokens(tokens);
 
 //        printObject(root, 0);
-        JSONObject[] test = root.getObject("Spele").getArray("Komanda");
-        JSONObject[] test2=test[0].getObject("Speletaji").getArray("Speletajs");
-        int test3 = test2[0].getInt("Nr");
-        System.out.println(test3);
+//        JSONObject[] test = root.getObject("Spele").getArray("Komanda");
+//        JSONObject[] test2=test[0].getObject("Speletaji").getArray("Speletajs");
+//        int test3 = test2[0].getInt("Nr");
+//        System.out.println(test3);
+//        DB SQLite = new DB();
+//        try {
+//            int id = SQLite.playerId(SQLite.teamId("test"),1,"Te","St","U");
+//            System.out.println(id);
+//        }
+//        catch(SQLException e){
+//            e.printStackTrace();
+//        }
+
+        try {
+            DB db = new DB();
+            JSONToDB importer = new JSONToDB(db);
+
+            importer.importMatch(root);
+
+            System.out.println("Import done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         }
 
 
