@@ -76,21 +76,6 @@ public class DB {
     }
 
     public int matchId(String date, String venue, Integer spectators, int team1Id, int team2Id) throws SQLException{
-        String select = """
-            SELECT id FROM match
-            WHERE match_date = ? AND venue = ? AND team1_id = ? AND team2_id = ?
-            """;
-        try (PreparedStatement ps = connection.prepareStatement(select)) {
-            ps.setString(1, date);
-            ps.setString(2, venue);
-            ps.setInt(3, team1Id);
-            ps.setInt(4, team2Id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                }
-            }
-        }
 
         String insert = """
             INSERT INTO match(match_date, venue, spectators, team1_id, team2_id)
@@ -375,5 +360,40 @@ public class DB {
             }
         }
         throw new SQLException("Failed to insert match_player");
+    }
+    public Boolean checkIfMatchAdded(String date, int team1Id, int team2Id) throws SQLException {
+
+        String sql = """
+        SELECT id FROM match
+        WHERE match_date = ?
+        AND (team1_id = ? OR team2_id = ?)
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, date);
+            ps.setInt(2, team1Id);
+            ps.setInt(3, team2Id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    public int onlyGetTeamId(String teamName) throws SQLException {
+
+        String select = "SELECT id FROM team WHERE name = ?";
+        try (PreparedStatement ps = connection.prepareStatement(select)) {
+            ps.setString(1, teamName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        }
+        return -1;
     }
 }

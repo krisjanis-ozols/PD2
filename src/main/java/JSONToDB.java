@@ -18,7 +18,7 @@ public class JSONToDB {
 
         JSONObject[] komandas = spele.getArrayOrObject("Komanda");
         if (komandas.length != 2) {
-            throw new IllegalStateException("Expected exactly 2 teams in Komanda array");
+            throw new IllegalStateException("Expected exactly 2 teams");
         }
 
         JSONObject komanda1 = komandas[0];
@@ -27,13 +27,21 @@ public class JSONToDB {
         String team1Name = komanda1.getString("Nosaukums");
         String team2Name = komanda2.getString("Nosaukums");
 
-        int team1Id = db.teamId(team1Name);
-        int team2Id = db.teamId(team2Name);
+        int team1Id = db.onlyGetTeamId(team1Name);
+        int team2Id = db.onlyGetTeamId(team2Name);
+        if(db.checkIfMatchAdded(date, team1Id, team2Id)){
+            System.out.println("Match already added: skipping");
+            return;
+        }
+
+        team1Id = db.teamId(team1Name);
+        team2Id = db.teamId(team2Name);
+
 
         int matchId = db.matchId(date, venue, spectators, team1Id, team2Id);
 
-        importPlayersForTeam(komanda1, team1Id);
-        importPlayersForTeam(komanda2, team2Id);
+        importPlayersForTeam(komanda1, team1Id, matchId);
+        importPlayersForTeam(komanda2, team2Id, matchId);
 
         importGoalsForTeam(komanda1, matchId, team1Id);
         importGoalsForTeam(komanda2, matchId, team2Id);
@@ -47,20 +55,39 @@ public class JSONToDB {
         importReferees(spele, matchId);
     }
 
-    private void importPlayersForTeam(JSONObject komanda, int teamId) throws SQLException {
+    private void importPlayersForTeam(JSONObject komanda, int teamId, int matchId) throws SQLException {
+        Map<Integer, Integer> numberToPlayerId = new HashMap<>();
+
         try {
             JSONObject speletajiNode = komanda.getObject("Speletaji");
             JSONObject[] speletaji = speletajiNode.getArrayOrObject("Speletajs");
-
             for (JSONObject playerObj : speletaji) {
                 int number = playerObj.getInt("Nr");
                 String firstName = playerObj.getString("Vards");
                 String lastName = playerObj.getString("Uzvards");
                 String role = playerObj.getString("Loma");
-                db.playerId(teamId, number, firstName, lastName, role);
+                int playerId = db.playerId(teamId, number, firstName, lastName, role);
+                numberToPlayerId.put(number, playerId);
             }
         } catch (IllegalArgumentException e) {
             return;
+        }
+
+        Map<Integer, Boolean> isStarter = new HashMap<>();
+        try {
+            JSONObject pnode = komanda.getObject("Pamatsastavs");
+            JSONObject[] starters = pnode.getArrayOrObject("Speletajs");
+            for (JSONObject p : starters) {
+                int num = p.getInt("Nr");
+                isStarter.put(num, true);
+            }
+        } catch (IllegalArgumentException e) {}
+
+        for (Map.Entry<Integer, Integer> entry : numberToPlayerId.entrySet()) {
+            int number = entry.getKey();
+            int playerId = entry.getValue();
+            boolean starter = isStarter.getOrDefault(number, false);
+            db.matchPlayerId(matchId, playerId, starter, null);
         }
     }
 
@@ -86,14 +113,11 @@ public class JSONToDB {
             boolean isPenalty = "J".equalsIgnoreCase(sitiens);
 
             int seconds = timeToSeconds(timeString);
-
             int scorerId = playerIdFromNumber(teamId, scorerNumber);
-
             int goalId = db.goalId(matchId, teamId, scorerId, seconds, isPenalty);
 
             try {
-                JSONObject[] assists =vg.getArrayOrObject("P");
-                System.out.println("test");
+                JSONObject[] assists = vg.getArrayOrObject("P");
                 int order = 1;
                 for (JSONObject assistObj : assists) {
                     int assistNumber = assistObj.getInt("Nr");
@@ -101,8 +125,7 @@ public class JSONToDB {
                     db.assistId(goalId, assistPlayerId, order);
                     order++;
                 }
-            } catch (IllegalArgumentException e) {
-            }
+            } catch (IllegalArgumentException e) {}
         }
     }
 
@@ -124,27 +147,20 @@ public class JSONToDB {
         Map<Integer, Integer> foulCount = new HashMap<>();
 
         for (JSONObject sods : sodi) {
-            if(sods==null){
-                return;
-            }
+            if (sods == null) return;
 
             int number = sods.getInt("Nr");
             String timeString = sods.getString("Laiks");
             int seconds = timeToSeconds(timeString);
-
             int playerId = playerIdFromNumber(teamId, number);
 
             int count = foulCount.getOrDefault(playerId, 0) + 1;
             foulCount.put(playerId, count);
 
             String cardType;
-            if (count == 1) {
-                cardType = "Y";
-            } else if (count == 2) {
-                cardType = "R";
-            } else {
-                continue;
-            }
+            if (count == 1) cardType = "Y";
+            else if (count == 2) cardType = "R";
+            else continue;
 
             db.cardId(matchId, teamId, playerId, seconds, cardType);
         }
@@ -166,9 +182,8 @@ public class JSONToDB {
         }
 
         for (JSONObject maina : mainas) {
-            if(maina == null){
-                return;
-            }
+            if (maina == null) return;
+
             String timeString = maina.getString("Laiks");
             int seconds = timeToSeconds(timeString);
 
@@ -185,15 +200,13 @@ public class JSONToDB {
     private void importReferees(JSONObject spele, int matchId) throws SQLException {
         try {
             JSONObject vt = spele.getObject("VT");
-            String vtName = vt.getString("Uzvards");
-            String vtFirst = vt.getString("Vards");
-            int vtId = db.refereeId(vtFirst, vtName);
+            String lastName = vt.getString("Uzvards");
+            String firstName = vt.getString("Vards");
+            int vtId = db.refereeId(firstName, lastName);
             db.matchRefereeId(matchId, vtId, "VT");
-        } catch (IllegalArgumentException e) {
-        }
+        } catch (IllegalArgumentException e) {}
 
         try {
-
             JSONObject[] tiesnesi = spele.getArrayOrObject("T");
             int i = 1;
             for (JSONObject t : tiesnesi) {
@@ -203,8 +216,7 @@ public class JSONToDB {
                 db.matchRefereeId(matchId, refId, "T" + i);
                 i++;
             }
-        } catch (IllegalArgumentException e) {
-        }
+        } catch (IllegalArgumentException e) {}
     }
 
     private int playerIdFromNumber(int teamId, int number) throws SQLException {
@@ -217,5 +229,4 @@ public class JSONToDB {
         int seconds = Integer.parseInt(parts[1]);
         return minutes * 60 + seconds;
     }
-
 }

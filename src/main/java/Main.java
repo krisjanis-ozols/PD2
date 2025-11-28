@@ -11,19 +11,7 @@ import java.util.Map;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        String json ="";
-        try {
-            Path path = Path.of("futbols0.json");   // adjust path if needed
-            json = Files.readString(path, StandardCharsets.UTF_8);
-        }
-        catch(Exception e){
 
-        }
-
-        //String json = "{ \"team\": { \"name\": \"Dragons\", \"founded\": 1998 }, \"active\": false }";
-
-        List<Token> tokens = JSONLexer.lex(json);
-        JSONObject root = JSONObject.parseJSON(tokens);
         //Map<String, JSONObject> testMap= new HashMap<>();
 
 //        JSONObject test2 = new JSONObject("test2","test2");
@@ -47,17 +35,8 @@ public class Main {
 //            e.printStackTrace();
 //        }
 
-        try {
-            DB db = new DB();
-            JSONToDB importer = new JSONToDB(db);
-
-            importer.importMatch(root);
-
-            System.out.println("Import done.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        }
+        JSONImporter.importJSON("JSONTEMP");
+    }
 
 
     private static void printObject(JSONObject obj, int indent) {
