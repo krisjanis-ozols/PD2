@@ -1,14 +1,28 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DB {
     private Connection connection;
 
-    public DB(){
+    public DB() {
         String url = "jdbc:sqlite:lfl.db";
-        try{
-            this.connection=DriverManager.getConnection(url);
+        try {
+            this.connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -38,11 +52,11 @@ public class DB {
         throw new SQLException("Failed to insert team");
     }
 
-    public int playerId(int teamId, int number, String firstName, String lastName, String role) throws SQLException{
-        String select= """
-            SELECT id FROM player
-            WHERE team_id = ? AND number = ?
-            """;
+    public int playerId(int teamId, int number, String firstName, String lastName, String role) throws SQLException {
+        String select = """
+                SELECT id FROM player
+                WHERE team_id = ? AND number = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, teamId);
             ps.setInt(2, number);
@@ -54,9 +68,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO player(team_id, number, first_name, last_name, role)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO player(team_id, number, first_name, last_name, role)
+                VALUES (?, ?, ?, ?, ?)
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, teamId);
@@ -75,12 +89,12 @@ public class DB {
         throw new SQLException("Failed to insert player");
     }
 
-    public int matchId(String date, String venue, Integer spectators, int team1Id, int team2Id) throws SQLException{
+    public int matchId(String date, String venue, Integer spectators, int team1Id, int team2Id) throws SQLException {
 
         String insert = """
-            INSERT INTO match(match_date, venue, spectators, team1_id, team2_id)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO match(match_date, venue, spectators, team1_id, team2_id)
+                VALUES (?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, date);
             ps.setString(2, venue);
@@ -102,13 +116,13 @@ public class DB {
         throw new SQLException("Failed to insert match");
     }
 
-    public int goalId(int matchId, int teamId, int scorerId, int seconds, boolean isPenalty) throws SQLException{
+    public int goalId(int matchId, int teamId, int scorerId, int seconds, boolean isPenalty) throws SQLException {
         int penaltyFlag = isPenalty ? 1 : 0;
 
         String select = """
-            SELECT id FROM goal
-            WHERE match_id = ? AND team_id = ? AND scorer_id = ? AND seconds = ? AND is_penalty = ?
-            """;
+                SELECT id FROM goal
+                WHERE match_id = ? AND team_id = ? AND scorer_id = ? AND seconds = ? AND is_penalty = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -123,9 +137,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO goal(match_id, team_id, scorer_id, seconds, is_penalty)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO goal(match_id, team_id, scorer_id, seconds, is_penalty)
+                VALUES (?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -143,11 +157,11 @@ public class DB {
         throw new SQLException("Failed to insert goal");
     }
 
-    public int assistId(int goalId, int playerId, int assistOrder) throws SQLException{
+    public int assistId(int goalId, int playerId, int assistOrder) throws SQLException {
         String select = """
-            SELECT id FROM assist
-            WHERE goal_id = ? AND player_id = ? AND assist_order = ?
-            """;
+                SELECT id FROM assist
+                WHERE goal_id = ? AND player_id = ? AND assist_order = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, goalId);
             ps.setInt(2, playerId);
@@ -160,9 +174,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO assist(goal_id, player_id, assist_order)
-            VALUES (?, ?, ?)
-            """;
+                INSERT INTO assist(goal_id, player_id, assist_order)
+                VALUES (?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, goalId);
             ps.setInt(2, playerId);
@@ -178,11 +192,11 @@ public class DB {
         throw new SQLException("Failed to insert assist");
     }
 
-    public int cardId(int matchId, int teamId, int playerId, int seconds, String cardType) throws SQLException{
+    public int cardId(int matchId, int teamId, int playerId, int seconds, String cardType) throws SQLException {
         String select = """
-            SELECT id FROM card
-            WHERE match_id = ? AND team_id = ? AND player_id = ? AND seconds = ? AND card_type = ?
-            """;
+                SELECT id FROM card
+                WHERE match_id = ? AND team_id = ? AND player_id = ? AND seconds = ? AND card_type = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -197,9 +211,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO card(match_id, team_id, player_id, seconds, card_type)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO card(match_id, team_id, player_id, seconds, card_type)
+                VALUES (?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -217,11 +231,11 @@ public class DB {
         throw new SQLException("Failed to insert card");
     }
 
-    public int substitutionId(int matchId, int teamId, int seconds, int playerOutId, int playerInId) throws SQLException{
+    public int substitutionId(int matchId, int teamId, int seconds, int playerOutId, int playerInId) throws SQLException {
         String select = """
-            SELECT id FROM substitution
-            WHERE match_id = ? AND team_id = ? AND seconds = ? AND player_out_id = ? AND player_in_id = ?
-            """;
+                SELECT id FROM substitution
+                WHERE match_id = ? AND team_id = ? AND seconds = ? AND player_out_id = ? AND player_in_id = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -236,9 +250,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO substitution(match_id, team_id, seconds, player_out_id, player_in_id)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+                INSERT INTO substitution(match_id, team_id, seconds, player_out_id, player_in_id)
+                VALUES (?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, matchId);
             ps.setInt(2, teamId);
@@ -256,11 +270,11 @@ public class DB {
         throw new SQLException("Failed to insert substitution");
     }
 
-    public int refereeId(String firstName, String lastName) throws SQLException{
+    public int refereeId(String firstName, String lastName) throws SQLException {
         String select = """
-            SELECT id FROM referee
-            WHERE first_name = ? AND last_name = ?
-            """;
+                SELECT id FROM referee
+                WHERE first_name = ? AND last_name = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setString(1, firstName);
             ps.setString(2, lastName);
@@ -272,9 +286,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO referee(first_name, last_name)
-            VALUES (?, ?)
-            """;
+                INSERT INTO referee(first_name, last_name)
+                VALUES (?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, firstName);
             ps.setString(2, lastName);
@@ -289,11 +303,11 @@ public class DB {
         throw new SQLException("Failed to insert referee");
     }
 
-    public int matchRefereeId(int matchId, int refereeId, String role) throws SQLException{
+    public int matchRefereeId(int matchId, int refereeId, String role) throws SQLException {
         String select = """
-            SELECT id FROM match_referee
-            WHERE match_id = ? AND referee_id = ? AND role = ?
-            """;
+                SELECT id FROM match_referee
+                WHERE match_id = ? AND referee_id = ? AND role = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, matchId);
             ps.setInt(2, refereeId);
@@ -306,9 +320,9 @@ public class DB {
         }
 
         String insert = """
-            INSERT INTO match_referee(match_id, referee_id, role)
-            VALUES (?, ?, ?)
-            """;
+                INSERT INTO match_referee(match_id, referee_id, role)
+                VALUES (?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, matchId);
             ps.setInt(2, refereeId);
@@ -323,11 +337,12 @@ public class DB {
         }
         throw new SQLException("Failed to insert match_referee");
     }
-    public int matchPlayerId(int matchId, int playerId, boolean isStarter, Integer minutesPlayed) throws SQLException {
+
+    public int matchPlayerId(int matchId, int playerId, boolean isStarter) throws SQLException {
         String select = """
-        SELECT id FROM match_player
-        WHERE match_id = ? AND player_id = ?
-        """;
+                SELECT id FROM match_player
+                WHERE match_id = ? AND player_id = ?
+                """;
         try (PreparedStatement ps = connection.prepareStatement(select)) {
             ps.setInt(1, matchId);
             ps.setInt(2, playerId);
@@ -339,18 +354,13 @@ public class DB {
         }
 
         String insert = """
-        INSERT INTO match_player(match_id, player_id, is_starter, minutes_played)
-        VALUES (?, ?, ?, ?)
-        """;
+                INSERT INTO match_player(match_id, player_id, is_starter)
+                VALUES (?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, matchId);
             ps.setInt(2, playerId);
             ps.setInt(3, isStarter ? 1 : 0);
-            if (minutesPlayed == null) {
-                ps.setNull(4, Types.INTEGER);
-            } else {
-                ps.setInt(4, minutesPlayed);
-            }
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -361,13 +371,14 @@ public class DB {
         }
         throw new SQLException("Failed to insert match_player");
     }
+
     public Boolean checkIfMatchAdded(String date, int team1Id, int team2Id) throws SQLException {
 
         String sql = """
-        SELECT id FROM match
-        WHERE match_date = ?
-        AND (team1_id = ? OR team2_id = ?)
-        """;
+                SELECT id FROM match
+                WHERE match_date = ?
+                AND (team1_id = ? OR team2_id = ?)
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, date);
@@ -383,6 +394,7 @@ public class DB {
 
         return false;
     }
+
     public int onlyGetTeamId(String teamName) throws SQLException {
 
         String select = "SELECT id FROM team WHERE name = ?";
@@ -395,5 +407,148 @@ public class DB {
             }
         }
         return -1;
+    }
+
+    public int goalCount(int matchId, int teamId) throws SQLException {
+        String sql = """
+                SELECT COUNT(*) AS cnt
+                FROM goal
+                WHERE match_id = ? AND team_id = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+            ps.setInt(2, teamId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("cnt");
+                }
+            }
+        }
+        return 0;
+    }
+
+    public void setMatchGoals(int matchId, int goalsTeam1, int goalsTeam2) throws SQLException {
+        String sql = """
+                UPDATE match
+                SET goals_team1 = ?, goals_team2 = ?
+                WHERE id = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, goalsTeam1);
+            ps.setInt(2, goalsTeam2);
+            ps.setInt(3, matchId);
+            ps.executeUpdate();
+        }
+    }
+
+    public int maxGoalSeconds(int matchId) throws SQLException {
+        String sql = """
+                SELECT MAX(seconds) AS max_sec
+                FROM goal
+                WHERE match_id = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("max_sec");
+                }
+            }
+        }
+        return 0;
+    }
+
+    public void setMatchDecidedInOT(int matchId, boolean decided) throws SQLException {
+        String sql = """
+                UPDATE match
+                SET decided_in_ot = ?
+                WHERE id = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, decided ? 1 : 0);
+            ps.setInt(2, matchId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void setSecondsPlayed(int matchId, int playerId, int seconds) throws SQLException {
+        String sql = """
+                    UPDATE match_player
+                    SET seconds_played = ?
+                    WHERE match_id = ? AND player_id = ?
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, seconds);
+            ps.setInt(2, matchId);
+            ps.setInt(3, playerId);
+            ps.executeUpdate();
+        }
+    }
+
+    public List<Integer> getMatchPlayers(int matchId) throws SQLException {
+        String sql = """
+                    SELECT player_id
+                    FROM match_player
+                    WHERE match_id = ?
+                """;
+
+        List<Integer> ids = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("player_id"));
+                }
+            }
+        }
+        return ids;
+    }
+
+
+    public List<Integer> getStarterPlayers(int matchId) throws SQLException {
+        String sql = """
+                SELECT player_id
+                FROM match_player
+                WHERE match_id = ? AND is_starter = 1
+                """;
+
+        List<Integer> ids = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("player_id"));
+                }
+            }
+        }
+        return ids;
+    }
+
+    public List<int[]> getSubstitutions(int matchId) throws SQLException {
+        String sql = """
+                    SELECT seconds, player_out_id, player_in_id
+                    FROM substitution
+                    WHERE match_id = ?
+                    ORDER BY seconds ASC
+                """;
+
+        List<int[]> list = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, matchId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int sec = rs.getInt("seconds");
+                    int out = rs.getInt("player_out_id");
+                    int in = rs.getInt("player_in_id");
+
+                    list.add(new int[]{sec, out, in});
+                }
+            }
+        }
+
+        return list;
     }
 }

@@ -1,5 +1,7 @@
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JSONToDB {
@@ -46,6 +48,9 @@ public class JSONToDB {
         importGoalsForTeam(komanda1, matchId, team1Id);
         importGoalsForTeam(komanda2, matchId, team2Id);
 
+        updateMatchGoals(matchId, team1Id, team2Id);
+        updateMatchDecidedInOT(matchId);
+
         importCardsForTeam(komanda1, matchId, team1Id);
         importCardsForTeam(komanda2, matchId, team2Id);
 
@@ -53,6 +58,9 @@ public class JSONToDB {
         importSubstitutionsForTeam(komanda2, matchId, team2Id);
 
         importReferees(spele, matchId);
+
+        int matchDurationSeconds = computeMatchDuration(spele);
+        updateTeamSeconds(matchId, team1Id, team2Id, matchDurationSeconds);
     }
 
     private void importPlayersForTeam(JSONObject komanda, int teamId, int matchId) throws SQLException {
@@ -81,13 +89,14 @@ public class JSONToDB {
                 int num = p.getInt("Nr");
                 isStarter.put(num, true);
             }
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+        }
 
         for (Map.Entry<Integer, Integer> entry : numberToPlayerId.entrySet()) {
             int number = entry.getKey();
             int playerId = entry.getValue();
             boolean starter = isStarter.getOrDefault(number, false);
-            db.matchPlayerId(matchId, playerId, starter, null);
+            db.matchPlayerId(matchId, playerId, starter);   // seconds_played = null
         }
     }
 
@@ -222,6 +231,17 @@ public class JSONToDB {
     private int playerIdFromNumber(int teamId, int number) throws SQLException {
         return db.playerId(teamId, number, null, null, null);
     }
+    private void updateMatchGoals(int matchId, int team1Id, int team2Id) throws SQLException {
+        int goals1 = db.goalCount(matchId, team1Id);
+        int goals2 = db.goalCount(matchId, team2Id);
+        db.setMatchGoals(matchId, goals1, goals2);
+    }
+
+    private void updateMatchDecidedInOT(int matchId) throws SQLException {
+        int maxSec = db.maxGoalSeconds(matchId);
+        boolean decidedInOT = maxSec > 60 * 60;
+        db.setMatchDecidedInOT(matchId, decidedInOT);
+    }
 
     private int timeToSeconds(String mmss) {
         String[] parts = mmss.split(":");
@@ -229,4 +249,74 @@ public class JSONToDB {
         int seconds = Integer.parseInt(parts[1]);
         return minutes * 60 + seconds;
     }
+
+    private int computeMatchDuration(JSONObject spele) {
+
+        int duration = 60 * 60;
+
+        JSONObject[] komandas = spele.getArrayOrObject("Komanda");
+        for (JSONObject komanda : komandas) {
+            try {
+                JSONObject vartiNode = komanda.getObject("Varti");
+                JSONObject[] vgArray = vartiNode.getArrayOrObject("VG");
+                for (JSONObject vg : vgArray) {
+                    String timeString = vg.getString("Laiks");
+                    int sec = timeToSeconds(timeString);
+                    if (sec > duration) {
+                        duration = sec;
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+            }
+        }
+
+        return duration;
+    }
+
+    private void updateTeamSeconds(int matchId, int team1Id, int team2Id, int matchDurationSeconds) throws SQLException {
+
+        List<Integer> players = db.getMatchPlayers(matchId);
+        List<Integer> starterPlayers = db.getStarterPlayers(matchId);
+        List<int[]> substitutions = db.getSubstitutions(matchId);
+        Map<Integer, List<Integer>> subTimes = new HashMap<>();
+        int startTime;
+        int endTime;
+        int total;
+
+        for(int playerId : players){
+            subTimes.put(playerId,new ArrayList<>());
+            if(starterPlayers.contains(playerId)){
+                subTimes.get(playerId).add(0);
+            }
+        }
+
+        for(int[] substitution: substitutions){
+            subTimes.get(substitution[1]).add(substitution[0]);
+            subTimes.get(substitution[2]).add(substitution[0]);
+        }
+
+        for (Map.Entry<Integer, List<Integer>> entry : subTimes.entrySet()) {
+            int length = entry.getValue().size();
+            if(length%2==1){
+                entry.getValue().add(matchDurationSeconds);
+            }
+            db.setSecondsPlayed(matchId,entry.getKey(),computeSubSeconds(entry.getValue()));
+        }
+
+
+
+    }
+
+    private int computeSubSeconds(List<Integer> substitutions){
+        substitutions.sort(Integer::compareTo);
+        int total=0;
+        for (int i = 0; i < substitutions.size(); i+=2){
+            total+=substitutions.get(i+1)-substitutions.get(i);
+        };
+        return total;
+
+    }
+
+
+
 }

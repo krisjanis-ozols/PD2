@@ -38,6 +38,7 @@ public class JSONImporter {
             System.err.println("Error reading directory: " + e.getMessage());
             e.printStackTrace();
         }
+        db.close();
 
         System.out.println("Done.");
     }
@@ -51,7 +52,7 @@ public class JSONImporter {
             }
         }
 
-        if (number.length() == 0) {
+        if (number.isEmpty()) {
             return -1;
         }
 
