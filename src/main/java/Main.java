@@ -12,7 +12,12 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) {
 
-        JSONImporter.importJSON("SUBTEST");
+        DB db = new DB();
+
+        JSONImporter.importJSON("JSONTEMP", db);
+        StatsFromDB.printTopPlayers(db);
+
+        db.close();
 
     }
 

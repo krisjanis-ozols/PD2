@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class JSONImporter {
-    public static void importJSON(String directory) {
+    public static void importJSON(String directory, DB db) {
         Path dir = Paths.get(directory);
 
-        DB db = new DB();
         JSONToDB importer = new JSONToDB(db);
 
         try (Stream<Path> paths = Files.list(dir)) {
@@ -38,7 +37,7 @@ public class JSONImporter {
             System.err.println("Error reading directory: " + e.getMessage());
             e.printStackTrace();
         }
-        db.close();
+
 
         System.out.println("Done.");
     }

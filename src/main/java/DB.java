@@ -551,4 +551,134 @@ public class DB {
 
         return list;
     }
+
+    public List<TournamentRow> getTournamentTable() throws SQLException {
+        String sql = """
+        SELECT
+            t.id AS team_id,
+            t.name,
+            SUM(
+                CASE
+                    WHEN m.goals_team1 > m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 0 THEN 3
+                    WHEN m.goals_team2 > m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 0 THEN 3
+                    WHEN m.goals_team1 > m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 1 THEN 2
+                    WHEN m.goals_team2 > m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 1 THEN 2
+                    WHEN m.goals_team1 < m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    WHEN m.goals_team2 < m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    ELSE 0
+                END
+            ) AS points,
+            SUM(
+                CASE
+                    WHEN m.goals_team1 > m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 0 THEN 1
+                    WHEN m.goals_team2 > m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 0 THEN 1
+                    ELSE 0
+                END
+            ) AS wins_reg,
+            SUM(
+                CASE
+                    WHEN m.goals_team1 < m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 0 THEN 1
+                    WHEN m.goals_team2 < m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 0 THEN 1
+                    ELSE 0
+                END
+            ) AS losses_reg,
+            SUM(
+                CASE
+                    WHEN m.goals_team1 > m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    WHEN m.goals_team2 > m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    ELSE 0
+                END
+            ) AS wins_ot,
+            SUM(
+                CASE
+                    WHEN m.goals_team1 < m.goals_team2 AND m.team1_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    WHEN m.goals_team2 < m.goals_team1 AND m.team2_id = t.id AND m.decided_in_ot = 1 THEN 1
+                    ELSE 0
+                END
+            ) AS losses_ot,
+            SUM(
+                CASE
+                    WHEN m.team1_id = t.id THEN m.goals_team1
+                    ELSE m.goals_team2
+                END
+            ) AS goals_for,
+            SUM(
+                CASE
+                    WHEN m.team1_id = t.id THEN m.goals_team2
+                    ELSE m.goals_team1
+                END
+            ) AS goals_against
+        FROM team t
+        LEFT JOIN match m
+          ON t.id = m.team1_id OR t.id = m.team2_id
+        GROUP BY t.id
+        ORDER BY points DESC, (goals_for - goals_against) DESC
+        """;
+
+        List<TournamentRow> result = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                TournamentRow row = new TournamentRow(
+                        rs.getInt("team_id"),
+                        rs.getString("name"),
+                        rs.getInt("points"),
+                        rs.getInt("wins_reg"),
+                        rs.getInt("losses_reg"),
+                        rs.getInt("wins_ot"),
+                        rs.getInt("losses_ot"),
+                        rs.getInt("goals_for"),
+                        rs.getInt("goals_against")
+                );
+                result.add(row);
+            }
+        }
+
+        return result;
+    }
+    public List<TopPlayerRow> getTopPlayers() throws SQLException {
+        String sql = """
+        SELECT
+            p.id            AS player_id,
+            p.first_name    AS first_name,
+            p.last_name     AS last_name,
+            t.name          AS team_name,
+            COUNT(DISTINCT g.id) AS goals,
+            COUNT(a.id)     AS assists
+        FROM player p
+        JOIN team t ON p.team_id = t.id
+        LEFT JOIN goal g   ON g.scorer_id = p.id
+        LEFT JOIN assist a ON a.player_id = p.id
+        GROUP BY p.id
+        HAVING COUNT(DISTINCT g.id) > 0 OR COUNT(a.id) > 0
+        ORDER BY goals DESC,
+                 assists DESC,
+                 last_name,
+                 first_name
+        LIMIT 10
+        """;
+
+        List<TopPlayerRow> result = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                TopPlayerRow row = new TopPlayerRow(
+                        rs.getInt("player_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("team_name"),
+                        rs.getInt("goals"),
+                        rs.getInt("assists")
+                );
+                result.add(row);
+            }
+        }
+
+        return result;
+    }
+
 }
