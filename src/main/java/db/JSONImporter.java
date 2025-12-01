@@ -1,13 +1,23 @@
+package db;
+
+import json_parser.JSONLexer;
+import json_parser.JSONObject;
+import json_parser.Token;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class JSONImporter {
     public static void importJSON(String directory, DB db) {
+        importJSON(directory, db, System.out::println);
+    }
+    public static void importJSON(String directory, DB db, Consumer<String> logger) {
         Path dir = Paths.get(directory);
 
         JSONToDB importer = new JSONToDB(db);
@@ -22,25 +32,23 @@ public class JSONImporter {
                         return Integer.compare(na, nb);
                     })
                     .forEach(p -> {
-                        System.out.println("Importing: " + p.getFileName());
+                        logger.accept("Importē: " + p.getFileName());
                         try {
                             String json = Files.readString(p, StandardCharsets.UTF_8);
                             List<Token> tokens = JSONLexer.lex(json);
                             JSONObject root = JSONObject.parseJSON(tokens);
                             importer.importMatch(root);
                         } catch (Exception e) {
-                            System.err.println("Failed to import " + p.getFileName() + ": " + e.getMessage());
+                            logger.accept("Neizdevās Importēt " + p.getFileName() + ": " + "\n" + e.getMessage());
                             e.printStackTrace();
                         }
                     });
         } catch (IOException e) {
-            System.err.println("Error reading directory: " + e.getMessage());
+            logger.accept("Error reading directory: " + e.getMessage());
             e.printStackTrace();
         }
-
-
-        System.out.println("Done.");
     }
+
     private static int extractNumber(String filename) {
         StringBuilder number = new StringBuilder();
 

@@ -1,3 +1,7 @@
+package db;
+
+import json_parser.JSONObject;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +24,7 @@ public class JSONToDB {
 
         JSONObject[] komandas = spele.getArrayOrObject("Komanda");
         if (komandas.length != 2) {
-            throw new IllegalStateException("Expected exactly 2 teams");
+            throw new IllegalStateException("Gaidāmas 2 komandas");
         }
 
         JSONObject komanda1 = komandas[0];
@@ -32,8 +36,7 @@ public class JSONToDB {
         int team1Id = db.onlyGetTeamId(team1Name);
         int team2Id = db.onlyGetTeamId(team2Name);
         if(db.checkIfMatchAdded(date, team1Id, team2Id)){
-            System.out.println("Match already added: skipping");
-            return;
+            throw new RuntimeException("Spēle jau pievienota");
         }
 
         team1Id = db.teamId(team1Name);

@@ -1,3 +1,5 @@
+package db;
+
 public class TopPlayerRow {
     private final int playerId;
     private final String firstName;

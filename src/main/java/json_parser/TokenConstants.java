@@ -1,3 +1,5 @@
+package json_parser;
+
 public final class TokenConstants {
 
     public static final String LEFT_BRACE    = "LEFT_BRACE";

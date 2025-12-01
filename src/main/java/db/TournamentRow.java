@@ -1,3 +1,5 @@
+package db;
+
 public class TournamentRow {
     private final int teamId;
     private final String name;

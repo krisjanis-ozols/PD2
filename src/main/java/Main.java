@@ -7,35 +7,41 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/main.fxml"));
+        Scene scene = new Scene(loader.load());
+        stage.setTitle("Futbola statistika");
+        stage.setScene(scene);
+        stage.show();
+    }
+
     public static void main(String[] args) {
-
-        DB db = new DB();
-
-        JSONImporter.importJSON("JSONTEMP", db);
-        StatsFromDB.printTopPlayers(db);
-
-        db.close();
-
+        launch();
     }
 
 
-    private static void printObject(JSONObject obj, int indent) {
-        String pad = "  ".repeat(indent);
-        System.out.println(pad + "type=" + obj.getType() + ", value=" + obj.getValue());
 
-        if (obj.getChildren() != null) {
-            for (Map.Entry<String, JSONObject> entry : obj.getChildren().entrySet()) {
-                System.out.println(pad + "key = " + entry.getKey());
-                printObject(entry.getValue(), indent + 1);
-            }
-        }
-    }
-    private static void printTokens(List<Token> tokens){
-        for(Token token: tokens){
-            System.out.println("type = " + token.getType() + ", value = " + token.getValue());
-        }
-    }
+//    private static void printObject(JSONObject obj, int indent) {
+//        String pad = "  ".repeat(indent);
+//        System.out.println(pad + "type=" + obj.getType() + ", value=" + obj.getValue());
+//
+//        if (obj.getChildren() != null) {
+//            for (Map.Entry<String, JSONObject> entry : obj.getChildren().entrySet()) {
+//                System.out.println(pad + "key = " + entry.getKey());
+//                printObject(entry.getValue(), indent + 1);
+//            }
+//        }
+//    }
+//    private static void printTokens(List<Token> tokens){
+//        for(Token token: tokens){
+//            System.out.println("type = " + token.getType() + ", value = " + token.getValue());
+//        }
+//    }
 }

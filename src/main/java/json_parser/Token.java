@@ -1,3 +1,5 @@
+package json_parser;
+
 public class Token {
     private final String type;
     private final String value;

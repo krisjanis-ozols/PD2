@@ -1,8 +1,11 @@
+package db;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 public class DB {
     private Connection connection;
@@ -679,6 +682,28 @@ public class DB {
         }
 
         return result;
+    }
+    public void clear(){
+        String[] queries = {
+                "DELETE FROM match_referee",
+                "DELETE FROM substitution",
+                "DELETE FROM card",
+                "DELETE FROM assist",
+                "DELETE FROM goal",
+                "DELETE FROM match_player",
+                "DELETE FROM player",
+                "DELETE FROM match",
+                "DELETE FROM referee",
+                "DELETE FROM team"
+        };
+
+        try (Statement stmt = connection.createStatement()) {
+            for (String sql : queries) {
+                stmt.executeUpdate(sql);
+            }
+        }catch(SQLException e){
+            System.out.println("Failed to clear DB");
+        }
     }
 
 }

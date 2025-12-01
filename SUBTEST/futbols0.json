@@ -1,0 +1,67 @@
+{
+  "Spele": {
+    "Laiks": "2025/01/15",
+    "Vieta": "Test Arena",
+    "Skatitaji": 1000,
+    "Komanda": [
+      {
+        "Nosaukums": "Test FC",
+
+        "Speletaji": {
+          "Speletajs": [
+            {"Nr": 1,  "Vards": "A", "Uzvards": "Seven",  "Loma": "A"},
+            {"Nr": 2, "Vards": "B", "Uzvards": "Ten",    "Loma": "A"},
+            {"Nr": 3, "Vards": "C", "Uzvards": "Twelve", "Loma": "U"},
+            {"Nr": 4,  "Vards": "D", "Uzvards": "Five",   "Loma": "U"},
+            {"Nr": 5, "Vards": "E", "Uzvards": "Bench",  "Loma": "U"}
+          ]
+        },
+
+        "Pamatsastavs": {
+          "Speletajs": [
+            {"Nr": 1},
+            {"Nr": 2}
+          ]
+        },
+
+        "Mainas": {
+          "Maina": [
+            {"Laiks": "37:30", "Nr1": 1,  "Nr2": 3},
+            {"Laiks": "30:00", "Nr1": 2, "Nr2": 4},
+			{"Laiks": "35:00", "Nr1": 4, "Nr2": 2},
+			{"Laiks": "40:00", "Nr1": 2, "Nr2": 4},
+			{"Laiks": "45:00", "Nr1": 4, "Nr2": 2},
+            
+          ]
+        }
+      },
+
+      {
+        "Nosaukums": "Other FC",
+
+        "Speletaji": {
+          "Speletajs": [
+            {"Nr": 1,  "Vards": "G", "Uzvards": "Keeper", "Loma": "V"}
+          ]
+        },
+
+        "Pamatsastavs": {
+          "Speletajs": [
+            {"Nr": 1}
+          ]
+        },
+
+        "Varti": {
+          "VG": [
+            {"Nr": 1, "Laiks": "75:00", "Sitiens": "N"}
+          ]
+        }
+      }
+    ],
+
+    "VT": {
+      "Vards": "Main",
+      "Uzvards": "Ref"
+    }
+  }
+}
