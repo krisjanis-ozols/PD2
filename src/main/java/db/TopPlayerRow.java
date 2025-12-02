@@ -1,6 +1,7 @@
 package db;
 
 public class TopPlayerRow {
+    private int rank;
     private final int playerId;
     private final String firstName;
     private final String lastName;
@@ -23,4 +24,7 @@ public class TopPlayerRow {
     public String getTeamName() { return teamName; }
     public int getGoals() { return goals; }
     public int getAssists() { return assists; }
+    public int getRank() { return rank; }
+
+    public void setRank(int rank) { this.rank = rank; }
 }

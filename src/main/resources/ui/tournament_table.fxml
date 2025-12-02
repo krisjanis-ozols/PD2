@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ui.TournamentController">
+
+    <children>
+        <TableView fx:id="tournamentTable"
+                   AnchorPane.topAnchor="0.0"
+                   AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0"
+                   AnchorPane.rightAnchor="0.0">
+            <columns>
+                <TableColumn fx:id="colRank" text="Vieta"/>
+                <TableColumn fx:id="colTeam" text="Komanda"/>
+                <TableColumn fx:id="colPoints" text="Punkti"/>
+                <TableColumn fx:id="colWinsReg" text="Uzvaras"/>
+                <TableColumn fx:id="colLossesReg" text="Zaud"/>
+                <TableColumn fx:id="colWinsOt" text="PL Uzvaras"/>
+                <TableColumn fx:id="colLossesOt" text="PL Zaud"/>
+                <TableColumn fx:id="colGoalsFor" text="I. Vārti"/>
+                <TableColumn fx:id="colGoalsAgainst" text="Z. Vārti"/>
+                <TableColumn fx:id="colGoalDiff" text="VA"/>
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>

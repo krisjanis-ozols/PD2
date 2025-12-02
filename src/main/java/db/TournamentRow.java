@@ -1,6 +1,7 @@
 package db;
 
 public class TournamentRow {
+    private int rank;
     private final int teamId;
     private final String name;
     private final int points;
@@ -10,8 +11,9 @@ public class TournamentRow {
     private final int lossesOt;
     private final int goalsFor;
     private final int goalsAgainst;
+    private final int goalsDifference;
 
-    public TournamentRow(int teamId, String name, int points, int winsReg, int lossesReg, int winsOt, int lossesOt, int goalsFor, int goalsAgainst) {
+    public TournamentRow(int teamId, String name, int points, int winsReg, int lossesReg, int winsOt, int lossesOt, int goalsFor, int goalsAgainst, int goalsDifference) {
         this.teamId = teamId;
         this.name = name;
         this.points = points;
@@ -21,6 +23,7 @@ public class TournamentRow {
         this.lossesOt = lossesOt;
         this.goalsFor = goalsFor;
         this.goalsAgainst = goalsAgainst;
+        this.goalsDifference = goalsDifference;
     }
 
     public int getTeamId() { return teamId; }
@@ -32,4 +35,8 @@ public class TournamentRow {
     public int getLossesOt() { return lossesOt; }
     public int getGoalsFor() { return goalsFor; }
     public int getGoalsAgainst() { return goalsAgainst; }
+    public int getGoalsDifference() { return goalsDifference; }
+    public int getRank() { return rank; }
+
+    public void setRank(int rank) { this.rank = rank; }
 }

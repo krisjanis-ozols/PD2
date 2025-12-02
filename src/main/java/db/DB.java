@@ -622,6 +622,8 @@ public class DB {
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+            int gf;
+            int ga;
 
             while (rs.next()) {
                 TournamentRow row = new TournamentRow(
@@ -632,8 +634,9 @@ public class DB {
                         rs.getInt("losses_reg"),
                         rs.getInt("wins_ot"),
                         rs.getInt("losses_ot"),
-                        rs.getInt("goals_for"),
-                        rs.getInt("goals_against")
+                        gf = rs.getInt("goals_for"),
+                        ga = rs.getInt("goals_against"),
+                        gf-ga
                 );
                 result.add(row);
             }
