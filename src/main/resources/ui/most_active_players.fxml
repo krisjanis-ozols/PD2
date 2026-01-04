@@ -4,12 +4,13 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.Label?>
+
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ui.TopPlayerGoalsController">
+            fx:controller="ui.MostActivePlayersController">
 
     <children>
-        <TableView fx:id="topPlayersTable"
+        <TableView fx:id="mostActiveTable"
                    AnchorPane.topAnchor="0.0"
                    AnchorPane.bottomAnchor="0.0"
                    AnchorPane.leftAnchor="0.0"
@@ -21,9 +22,8 @@
                 <TableColumn fx:id="colPlace" text="Vieta"/>
                 <TableColumn fx:id="colFirstName" text="Vārds"/>
                 <TableColumn fx:id="colLastName" text="Uzvārds"/>
-                <TableColumn fx:id="colTeamP" text="Komanda"/>
-                <TableColumn fx:id="colGoals" text="Vārti"/>
-                <TableColumn fx:id="colAssists" text="Piespēles"/>
+                <TableColumn fx:id="colTeam" text="Komanda"/>
+                <TableColumn fx:id="colTime" text="Laiks"/>
             </columns>
         </TableView>
     </children>

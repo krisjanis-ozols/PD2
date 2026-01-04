@@ -686,6 +686,39 @@ public class DB {
 
         return result;
     }
+
+    public List<MostActivePlayerRow> getMostActivePlayersTop10() throws SQLException {
+        String sql = """
+        SELECT
+            p.first_name AS first_name,
+            p.last_name  AS last_name,
+            t.name       AS team_name,
+            COALESCE(SUM(mp.seconds_played), 0) AS total_seconds
+        FROM match_player mp
+        JOIN player p ON p.id = mp.player_id
+        JOIN team t   ON t.id = p.team_id
+        GROUP BY p.id
+        ORDER BY total_seconds DESC, p.last_name, p.first_name
+        LIMIT 10
+        """;
+
+        List<MostActivePlayerRow> result = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                result.add(new MostActivePlayerRow(
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("team_name"),
+                        rs.getInt("total_seconds")
+                ));
+            }
+        }
+        return result;
+    }
+
     public void clear(){
         String[] queries = {
                 "DELETE FROM match_referee",

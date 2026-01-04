@@ -67,6 +67,16 @@ public class MainController {
         topPlayersTabController.refreshTopPlayers();
     }
 
+    @FXML
+    private MostActivePlayersController mostActiveTabController;
+
+    @FXML
+    public void onMostActiveTabSelected() {
+        if (mostActiveTabController != null) {
+            mostActiveTabController.refreshMostActivePlayers();
+        }
+    }
+
     private void log(String msg) {
         JSONLogArea.appendText(msg + "\n");
         JSONLogArea.positionCaret(JSONLogArea.getText().length());
