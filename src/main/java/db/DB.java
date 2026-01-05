@@ -719,6 +719,37 @@ public class DB {
         return result;
     }
 
+    public List<TeamDisciplineRow> getTeamDisciplineTop10() throws SQLException {
+        String sql = """
+        SELECT
+            t.name AS team_name,
+            SUM(CASE WHEN c.card_type = 'Y' THEN 1 ELSE 0 END) AS yellows,
+            SUM(CASE WHEN c.card_type = 'R' THEN 1 ELSE 0 END) AS reds,
+            COUNT(*) AS total_cards
+        FROM card c
+        JOIN team t ON t.id = c.team_id
+        GROUP BY t.id
+        ORDER BY total_cards DESC, reds DESC, yellows DESC, t.name
+        LIMIT 10
+        """;
+
+        List<TeamDisciplineRow> result = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                result.add(new TeamDisciplineRow(
+                        rs.getString("team_name"),
+                        rs.getInt("yellows"),
+                        rs.getInt("reds"),
+                        rs.getInt("total_cards")
+                ));
+            }
+        }
+        return result;
+    }
+
     public void clear(){
         String[] queries = {
                 "DELETE FROM match_referee",

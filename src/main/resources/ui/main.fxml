@@ -41,11 +41,19 @@
                         <fx:include fx:id="topPlayersTab" source="top_player_goals.fxml" />
                     </content>
                 </Tab>
+
                 <Tab text="Aktīvākie spēlētāji" onSelectionChanged="#onMostActiveTabSelected">
                     <content>
                         <fx:include fx:id="mostActiveTab" source="most_active_players.fxml" />
                     </content>
                 </Tab>
+
+                <Tab text="Komandu disciplīna" onSelectionChanged="#onTeamDisciplineTabSelected">
+                    <content>
+                        <fx:include fx:id="teamDisciplineTab" source="team_discipline.fxml" />
+                    </content>
+                </Tab>
+
             </tabs>
         </TabPane>
     </center>

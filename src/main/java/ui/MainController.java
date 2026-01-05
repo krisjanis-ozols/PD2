@@ -77,6 +77,17 @@ public class MainController {
         }
     }
 
+    @FXML
+    private TeamDisciplineController teamDisciplineTabController;
+
+    @FXML
+    public void onTeamDisciplineTabSelected() {
+        if (teamDisciplineTabController != null) {
+            teamDisciplineTabController.refreshTeamDiscipline();
+        }
+    }
+
+
     private void log(String msg) {
         JSONLogArea.appendText(msg + "\n");
         JSONLogArea.positionCaret(JSONLogArea.getText().length());
